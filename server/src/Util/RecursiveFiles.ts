@@ -4,7 +4,7 @@ import * as Filesystem from 'fs';
 
 let processedFiles = [];
 
-export function recursiveFiles(path): any[]
+export function RecursiveFiles(path): any[]
 {
     let allFiles = Filesystem.readdirSync(path);
 
@@ -18,7 +18,7 @@ export function recursiveFiles(path): any[]
                 let stats = Filesystem.lstatSync(path + file);
 
                 if (stats.isDirectory()) {
-                    recursiveFiles(path + file + "/");
+                    RecursiveFiles(path + file + "/");
                 } else {
                     // console.log("file", file);
                     return true;
