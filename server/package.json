@@ -1,0 +1,33 @@
+{
+  "name": "language-server-example",
+  "description": "Example implementation of a language server in node.",
+  "version": "0.0.1",
+  "author": "Microsoft Corporation",
+  "license": "MIT",
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "php-parser": "^2.0.6",
+    "vscode-languageserver": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^20.0.7",
+    "@types/node": "^6.0.52",
+    "jest": "^20.0.4",
+    "ts-jest": "^20.0.10",
+    "typescript": "^2.4.2"
+  },
+  "scripts": {
+    "compile": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc -p .",
+    "watch": "installServerIntoExtension ../client ./package.json ./tsconfig.json && tsc --watch -p ."
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": ["ts", "tsx", "js"]
+  }
+}
