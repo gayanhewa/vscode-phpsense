@@ -44,7 +44,7 @@ export class Parser {
 
                 files
                     .forEach(file => {
-                        console.log('Parse the AST', file);
+                        //console.log('Parse the AST', file);
                         parsedFiles.push(file);
                     });
 
@@ -52,7 +52,7 @@ export class Parser {
             })
             .catch(error => {
                 reject(error);
-            }); 
+            });
         });
     }
 }
