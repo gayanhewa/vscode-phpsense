@@ -4,6 +4,16 @@ import {Cached} from './Cached';
 import * as Filesystem from 'fs';
 import {RecursiveFiles} from './RecursiveFiles';
 const Engine = require('php-parser');
+const parserOptions = {
+    parser: {
+        extractDoc: true,
+        locations: false,
+        suppressErrors: true
+    },
+    ast: {
+        withPositions: true
+    }
+};
 
 /**
  * Parser all project files. Build data structure to access the parsed tokens easily.
@@ -11,11 +21,15 @@ const Engine = require('php-parser');
  */
 export class Parser {
 
+    private cacheManager: Cached;
     private projectRoot:string;
+    private parser;
 
     constructor(projectRoot: string)
     {
         this.projectRoot = projectRoot;
+        this.cacheManager = new Cached();
+        this.parser = new Engine(parserOptions);
     }
 
     /**
@@ -41,24 +55,18 @@ export class Parser {
     public parse(file): Promise<object>
     {
         return new Promise<object>((resolve, reject) => {
-            let content = Filesystem.readFileSync(file, 'utf8');
-
-            let Parser = new Engine({
-                // some options :
-                parser: {
-                    extractDoc: true,
-                    locations: false,
-                    suppressErrors: true
-                },
-                ast: {
-                    withPositions: true
-                }
-            });
-
-            // parse the abstract syntax tree for the file
-            let AST = Parser.parseCode(content);
-
-            resolve(AST);
+            let cacheKey = file.split('/').join('.');
+            this.cacheManager.get(cacheKey)
+                .then(resolve)
+                .catch(error => { console.log('File is not cached.'); })
+                .then(() => {
+                    let content = Filesystem.readFileSync(file, 'utf8');
+                    // parse the abstract syntax tree for the file
+                    let AST = this.parser.parseCode(content);
+                    this.cacheManager.set(cacheKey, AST)
+                        .then(() => { resolve(AST); })
+                        .catch((error) => {console.log(error); reject('Caching failed')});
+                })
         });
     }
     /**
@@ -73,8 +81,11 @@ export class Parser {
 
                 files
                     .forEach(file => {
-                        //console.log('Parse the AST', file);
-                        parsedFiles.push(file);
+                        this.parse(file)
+                            .then(() => {
+                                parsedFiles.push(file);
+                            })
+                            .catch(error => { console.log(error); });
                     });
 
                 resolve(parsedFiles);
