@@ -1,7 +1,10 @@
 'use strict'
 
-import * as Engine from 'php-parser';
+import {Cached} from './Cached';
+import * as Filesystem from 'fs';
 import {RecursiveFiles} from './RecursiveFiles';
+const Engine = require('php-parser');
+
 /**
  * Parser all project files. Build data structure to access the parsed tokens easily.
  *
@@ -33,9 +36,35 @@ export class Parser {
     }
 
     /**
+     * Parse the given file and return the AST.
+     */
+    public parse(file): Promise<object>
+    {
+        return new Promise<object>((resolve, reject) => {
+            let content = Filesystem.readFileSync(file, 'utf8');
+
+            let Parser = new Engine({
+                // some options :
+                parser: {
+                    extractDoc: true,
+                    locations: false,
+                    suppressErrors: true
+                },
+                ast: {
+                    withPositions: true
+                }
+            });
+
+            // parse the abstract syntax tree for the file
+            let AST = Parser.parseCode(content);
+
+            resolve(AST);
+        });
+    }
+    /**
      * Parse the project root
      */
-    public parse(): Promise<Array<any>>
+    public process(): Promise<Array<any>>
     {
         return new Promise<Array<any>>((resolve, reject) => {
             this.getFilesListForProject(this.projectRoot)
