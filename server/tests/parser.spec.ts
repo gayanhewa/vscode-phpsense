@@ -211,6 +211,8 @@ test("Parser parse file test", () =>{
     expect.assertions(1);
 
     ParserEngine.parse(localPath+"Bar/Foo.php")
-        .then(AST => { expect(AST).toEqual(expectedAST);})
+        .then(parsedObject => {
+          expect(parsedObject).toEqual({ ast: expectedAST, fqcn: 'Foo\\Foo'});
+        })
         .catch(error => { console.log(error);});
 });

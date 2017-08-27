@@ -1,8 +1,12 @@
 'use strict'
 
+import * as _ from 'lodash';
 import {Cached} from './Cached';
 import * as Filesystem from 'fs';
+import {ParsedObject} from './../Interfaces/Interfaces';
 import {RecursiveFiles} from './RecursiveFiles';
+
+// TODO: Figure out why I can't use import for this.
 const Engine = require('php-parser');
 const parserOptions = {
     parser: {
@@ -52,9 +56,9 @@ export class Parser {
     /**
      * Parse the given file and return the AST.
      */
-    public parse(file): Promise<object>
+    public parse(file): Promise<ParsedObject>
     {
-        return new Promise<object>((resolve, reject) => {
+        return new Promise<ParsedObject>((resolve, reject) => {
             let cacheKey = file.split('/').join('.');
             this.cacheManager.get(cacheKey)
                 .then(resolve)
@@ -62,15 +66,49 @@ export class Parser {
                 .then(() => {
                     let content = Filesystem.readFileSync(file, 'utf8');
                     // parse the abstract syntax tree for the file
-                    let AST = this.parser.parseCode(content);
-                    this.cacheManager.set(cacheKey, AST)
-                        .then(() => { resolve(AST); })
-                        .catch((error) => {console.log(error); reject('Caching failed')});
+                    return this.parser.parseCode(content);
                 })
+                .then(this.getFQCN)
+                .then((parsedObject) => {
+                    this.cacheManager.set(cacheKey, parsedObject)
+                    .then(() => { resolve(parsedObject); })
+                    .catch((error) => {console.log(error); reject('Caching failed')});
+                });
         });
     }
+
     /**
-     * Parse the project root
+     * Get the fully qualified classname for a given AST.
+     *
+     * @param AST
+     */
+    public getFQCN(AST): ParsedObject
+    {
+        let fqcn = '';
+
+        if (!_.isNil(AST.children)) {
+          AST.children
+            .forEach((childNode) => {
+              if(childNode.kind === 'namespace') {
+                fqcn = childNode.name;
+                if (!_.isNil(childNode.children)) {
+                  childNode.children
+                    .forEach((childNode) => {
+                      if (childNode.kind === 'class') {
+                        fqcn = [fqcn, childNode.name].join("\\");
+                      }
+                    })
+                }
+              } else if (childNode.kind === 'class' || childNode.kind === 'interface') {
+                fqcn = childNode.name;
+              }
+            });
+        }
+
+        return { ast: AST, fqcn: fqcn };
+    }
+    /**
+     * Parse the project root, this will generate cached AST files for all files in the project.
      */
     public process(): Promise<Array<any>>
     {

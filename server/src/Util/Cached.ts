@@ -12,6 +12,12 @@ interface CacheInterface
 export class Cached implements CacheInterface
 {
     private dir: string = "/tmp/";
+    private namespace: string = "";
+
+    constructor(namespace?: string)
+    {
+        this.namespace = namespace;
+    }
 
     private getPath(filename?:string): string
     {
