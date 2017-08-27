@@ -1,13 +1,13 @@
-# README
-## This is the README for your extension "vscode" 
-You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
+# VSCode PHPSense
 
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
+Just another Visual Studio Code extension that adds support for PHP development.
 
-### For more information
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+This uses an already available (node PHP parser)[https://glayzzle.com/php-parser/#demo] that powers most of its core functions.
 
-** Enjoy!**
+The extension is no way close to daily use. If you are looking for a PHP support extension the best extensions that enable are the ones below:
+
+- PHP IntelliSense by Felix Becker https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-intellisense
+- PHP Intellisense - Crane by Hvy Industries https://marketplace.visualstudio.com/items?itemName=HvyIndustries.crane
+- PHP Intelephense by Ben Mewburn https://marketplace.visualstudio.com/items?itemName=bmewburn.vscode-intelephense-client
+
+I use Ben Mewburn's extention on a daily basis. And its pretty fast and has most of the features that you would look for on a daily basis.
