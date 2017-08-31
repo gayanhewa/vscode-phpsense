@@ -70,6 +70,11 @@ export class Parser {
                 })
                 .then(this.getFQCN)
                 .then((parsedObject) => {
+                  // TODO: Only thing I am not 100% certain here is having a backslashes in the filename.
+                  this.cacheManager.set(parsedObject.fqcn, parsedObject);
+                  return parsedObject;
+                })
+                .then((parsedObject) => {
                     this.cacheManager.set(cacheKey, parsedObject)
                     .then(() => { resolve(parsedObject); })
                     .catch((error) => {console.log(error); reject('Caching failed')});

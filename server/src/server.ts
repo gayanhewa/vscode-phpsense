@@ -8,6 +8,8 @@ import {
 	CompletionItem, CompletionItemKind
 } from 'vscode-languageserver';
 
+import {Parser} from './Util/Parser';
+
 // Create a connection for the server. The connection uses Node's IPC as a transport
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 
@@ -19,20 +21,28 @@ let documents: TextDocuments = new TextDocuments();
 documents.listen(connection);
 
 // After the server has started the client sends an initialize request. The server receives
-// in the passed params the rootPath of the workspace plus the client capabilities. 
+// in the passed params the rootPath of the workspace plus the client capabilities.
 let workspaceRoot: string;
 connection.onInitialize((params): InitializeResult => {
-	workspaceRoot = params.rootPath;
-	return {
-		capabilities: {
-			// Tell the client that the server works in FULL text document sync mode
-			textDocumentSync: documents.syncKind,
-			// Tell the client that the server support code complete
-			completionProvider: {
-				resolveProvider: true
-			}
-		}
-	}
+
+  connection.console.log('onIinit');
+  workspaceRoot = params.rootPath;
+
+  // TODO : You should begin indexing now. When the extension loads.
+  let ParserInstance = new Parser(workspaceRoot);
+
+  ParserInstance.process();
+
+  return {
+    capabilities: {
+      // Tell the client that the server works in FULL text document sync mode
+      textDocumentSync: documents.syncKind,
+      // Tell the client that the server support code complete
+      completionProvider: {
+        resolveProvider: true
+      }
+    }
+  };
 });
 
 // The content of a text document has changed. This event is emitted
